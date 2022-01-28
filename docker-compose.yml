@@ -1,0 +1,48 @@
+version: "3"
+
+services:
+  grafana:
+    image: grafana/grafana:8.3.3
+    container_name: grafana
+    ports:
+    - "3000:3000"
+    depends_on:
+     - db
+    restart: unless-stopped
+    environment:
+      GF_SECURITY_ADMIN_USER: "krjnk"
+      GF_SECURITY_ADMIN_PASSWORD__FILE: /etc/grafana/admin_password
+      GF_DATABASE_TYPE: mysql
+      GF_DATABASE_HOST: mysql:3306
+      GF_DATABASE_NAME: grafana_mysql
+      GF_DATABASE_USER: grafana
+      GF_DATABASE_PASSWORD: grafana_mysql_grafana
+    volumes:
+      - /home/docker/grafana/admin_password:/etc/grafana/admin_password
+      - /home/docker/grafana/grafana_data:/var/lib/grafana
+      - /home/docker/grafana/grafana_logs:/var/log/grafana
+      - /home/docker/grafana/grafana_plugins:/var/lib/grafana/plugins
+    networks:
+      grafana:
+        aliases:
+          - grafana
+
+  db:
+    image: mysql:5.7
+    container_name: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: jelen666
+      MYSQL_USER: grafana
+      MYSQL_PASSWORD: grafana_mysql_grafana
+      MYSQL_DATABASE: grafana_mysql
+    expose:
+      - "3306"
+    volumes:
+    - /home/docker/mysql/mysql_data:/var/lib/mysql
+    - /home/docker/mysql/mysql_conf:/etc/mysql/conf.d
+    networks:
+      grafana:
+        aliases:
+          - mysql
+networks:
+  grafana:
